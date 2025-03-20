@@ -187,3 +187,40 @@ IoT devices should be configured with:
 - **Data Cleanup**: Implement policies for data retention and cleanup
 - **Performance Tuning**: Monitor and adjust DynamoDB throughput as needed
 - **Cost Optimization**: Regularly review cost reports and optimize as necessary
+
+
+Here’s a concise and structured Markdown write-up for the end of your README:
+
+## Testing with `device-simulator.js`  
+
+To verify the integration of AWS IoT Core, S3, and DynamoDB, I used `device-simulator.js` to publish test messages to the topic `energy-monitoring/energy/data`. The simulator sends real-time sensor data, including energy consumption, voltage, current, power factor, temperature, and a timestamp.  
+
+### **Steps Taken for Validation**  
+1. **AWS IoT Core Connection**  
+   - Successfully connected to AWS IoT using certificates (`private.key`, `certificate.pem`, `rootCA.pem`).  
+   - Published sample telemetry data every few seconds.  
+
+2. **S3 Data Verification**  
+   - Confirmed that incoming messages were routed correctly to S3.  
+   - Ensured the S3 key structure was correctly formatted.  
+
+3. **DynamoDB Integration Troubleshooting**  
+   - Initially, no data appeared in DynamoDB, indicating a rule misconfiguration.  
+   - Created an **AWS IoT Rule** with an SQL statement to extract relevant fields:
+     ```sql
+     SELECT *, timestamp() AS created_at FROM 'energy-monitoring/energy/data'
+     ```
+   - Verified that the rule correctly mapped the **partition key (`device_id`)** and stored additional attributes.  
+
+4. **IAM Role & Permissions**  
+   - Updated the IAM role to allow `dynamodb:PutItem` and `dynamodb:UpdateItem`.  
+   - Ensured AWS IoT had the necessary access to write into DynamoDB.  
+
+5. **CloudWatch Debugging**  
+   - Used CloudWatch logs to identify and resolve rule execution errors.  
+   - Confirmed successful writes to DynamoDB after corrections.  
+
+### **Conclusion**  
+By simulating IoT device messages, I validated the end-to-end data pipeline, ensuring that data flows correctly from **AWS IoT Core** to **S3** and **DynamoDB**. Debugging steps, including **IAM role updates**, **IoT Rule adjustments**, and **CloudWatch log analysis**, were essential in resolving integration issues. With these corrections, the system is now fully functional for real-time energy monitoring.
+
+
